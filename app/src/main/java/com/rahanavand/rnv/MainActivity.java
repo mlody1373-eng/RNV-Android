@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.view.Gravity;
-import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -17,14 +16,12 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // صفحه اصلی
         LinearLayout mainLayout = new LinearLayout(this);
         mainLayout.setOrientation(LinearLayout.VERTICAL);
         mainLayout.setGravity(Gravity.CENTER_HORIZONTAL);
         mainLayout.setPadding(30, 40, 30, 30);
         mainLayout.setBackgroundColor(Color.WHITE);
 
-        // لوگو / نام سیستم
         TextView logo = new TextView(this);
         logo.setText("RNV");
         logo.setTextSize(46);
@@ -32,13 +29,8 @@ public class MainActivity extends Activity {
         logo.setTextColor(Color.BLACK);
         logo.setGravity(Gravity.CENTER);
 
-        mainLayout.addView(logo,
-                new LinearLayout.LayoutParams(
-                        -1,
-                        LinearLayout.LayoutParams.WRAP_CONTENT
-                ));
+        mainLayout.addView(logo);
 
-        // نام فارسی
         TextView title = new TextView(this);
         title.setText("راهاناوند");
         title.setTextSize(30);
@@ -46,13 +38,8 @@ public class MainActivity extends Activity {
         title.setTextColor(Color.BLACK);
         title.setGravity(Gravity.CENTER);
 
-        mainLayout.addView(title,
-                new LinearLayout.LayoutParams(
-                        -1,
-                        LinearLayout.LayoutParams.WRAP_CONTENT
-                ));
+        mainLayout.addView(title);
 
-        // نام انگلیسی
         TextView englishTitle = new TextView(this);
         englishTitle.setText("RAHANAVAND");
         englishTitle.setTextSize(18);
@@ -61,7 +48,6 @@ public class MainActivity extends Activity {
 
         mainLayout.addView(englishTitle);
 
-        // معرفی
         TextView description = new TextView(this);
         description.setText(
                 "یک اکوسیستم برای ارتباط انسان، مهارت، آموزش، کار و بازار"
@@ -73,7 +59,6 @@ public class MainActivity extends Activity {
 
         mainLayout.addView(description);
 
-        // عنوان بخش‌ها
         TextView sectionTitle = new TextView(this);
         sectionTitle.setText("بخش‌های راهاناوند");
         sectionTitle.setTextSize(22);
@@ -83,15 +68,13 @@ public class MainActivity extends Activity {
 
         mainLayout.addView(sectionTitle);
 
-        // دکمه‌ها
-        addButton(mainLayout, "👥 افراد و ارتباط");
-        addButton(mainLayout, "🎓 آموزش و کشف استعداد");
-        addButton(mainLayout, "🛠 کار و مهارت");
-        addButton(mainLayout, "🏪 بازار و تولید");
-        addButton(mainLayout, "🛡 حفاظت و امنیت");
-        addButton(mainLayout, "⚙️ مدیریت سیستم");
+        addButton(mainLayout, "افراد و ارتباط");
+        addButton(mainLayout, "آموزش و کشف استعداد");
+        addButton(mainLayout, "کار و مهارت");
+        addButton(mainLayout, "بازار و تولید");
+        addButton(mainLayout, "حفاظت و امنیت");
+        addButton(mainLayout, "مدیریت سیستم");
 
-        // اسکرول
         ScrollView scrollView = new ScrollView(this);
         scrollView.addView(mainLayout);
 
@@ -107,8 +90,12 @@ public class MainActivity extends Activity {
 
         LinearLayout.LayoutParams params =
                 new LinearLayout.LayoutParams(
-                        -1,
+                        LinearLayout.LayoutParams.MATCH_PARENT,
                         LinearLayout.LayoutParams.WRAP_CONTENT
                 );
 
-        params.setMargins(0, 8, 0,
+        params.setMargins(0, 8, 0, 8);
+
+        layout.addView(button, params);
+    }
+}
