@@ -16,12 +16,11 @@ public class MainActivity extends Activity {
     private SharedPreferences prefs;
 
     // =========================
-    // رنگ‌های هویت بصری RNV
+    // RNV COLORS
     // =========================
 
     private final int RNV_DARK = Color.rgb(20, 32, 45);
     private final int RNV_PRIMARY = Color.rgb(25, 118, 150);
-    private final int RNV_PRIMARY_DARK = Color.rgb(18, 84, 108);
     private final int RNV_LIGHT = Color.rgb(242, 247, 249);
     private final int RNV_CARD = Color.WHITE;
     private final int RNV_TEXT = Color.rgb(30, 40, 48);
@@ -38,7 +37,7 @@ public class MainActivity extends Activity {
     }
 
     // =========================
-    // ابزارهای ظاهری
+    // BACKGROUND
     // =========================
 
     private GradientDrawable background(int color, float radius) {
@@ -51,6 +50,10 @@ public class MainActivity extends Activity {
 
         return drawable;
     }
+
+    // =========================
+    // PAGE
+    // =========================
 
     private LinearLayout layout() {
 
@@ -74,62 +77,8 @@ public class MainActivity extends Activity {
         return scroll;
     }
 
-    private TextView title(String text) {
-
-        TextView t = new TextView(this);
-
-        t.setText(text);
-        t.setTextSize(27);
-        t.setTextColor(RNV_DARK);
-        t.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
-        t.setGravity(Gravity.CENTER);
-        t.setPadding(8, 15, 8, 8);
-
-        return t;
-    }
-
-    private TextView subtitle(String text) {
-
-        TextView t = new TextView(this);
-
-        t.setText(text);
-        t.setTextSize(15);
-        t.setTextColor(RNV_SECONDARY);
-        t.setGravity(Gravity.CENTER);
-        t.setPadding(10, 0, 10, 20);
-
-        return t;
-    }
-
-    private TextView label(String text) {
-
-        TextView t = new TextView(this);
-
-        t.setText(text);
-        t.setTextSize(16);
-        t.setTextColor(RNV_TEXT);
-        t.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
-        t.setPadding(5, 12, 5, 5);
-
-        return t;
-    }
-
-    private TextView infoText(String text) {
-
-        TextView t = new TextView(this);
-
-        t.setText(text);
-        t.setTextSize(16);
-        t.setTextColor(RNV_SECONDARY);
-        t.setPadding(15, 15, 15, 15);
-
-        t.setBackground(background(RNV_CARD, 20));
-
-        return t;
-    }
-
     // =========================
-    // هدر RNV
+    // HEADER
     // =========================
 
     private LinearLayout header(String titleText, String subText) {
@@ -139,7 +88,6 @@ public class MainActivity extends Activity {
         box.setOrientation(LinearLayout.VERTICAL);
         box.setGravity(Gravity.CENTER);
         box.setPadding(15, 18, 15, 18);
-
         box.setBackground(background(RNV_CARD, 24));
 
         TextView logo = new TextView(this);
@@ -183,93 +131,91 @@ public class MainActivity extends Activity {
     }
 
     // =========================
-    // کارت اصلی
+    // TITLE
     // =========================
 
-    private Button cardButton(String icon, String title, String description) {
+    private TextView title(String text) {
 
-        LinearLayout container = new LinearLayout(this);
+        TextView t = new TextView(this);
 
-        container.setOrientation(LinearLayout.HORIZONTAL);
-        container.setGravity(Gravity.CENTER_VERTICAL);
-        container.setPadding(18, 14, 18, 14);
+        t.setText(text);
+        t.setTextSize(27);
+        t.setTextColor(RNV_DARK);
+        t.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
+        t.setGravity(Gravity.CENTER);
+        t.setPadding(8, 15, 8, 8);
 
-        container.setBackground(background(RNV_CARD, 22));
+        return t;
+    }
 
-        TextView iconView = new TextView(this);
+    private TextView label(String text) {
 
-        iconView.setText(icon);
-        iconView.setTextSize(27);
-        iconView.setGravity(Gravity.CENTER);
+        TextView t = new TextView(this);
 
-        LinearLayout.LayoutParams iconParams =
-                new LinearLayout.LayoutParams(55, 65);
+        t.setText(text);
+        t.setTextSize(16);
+        t.setTextColor(RNV_TEXT);
+        t.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
+        t.setPadding(5, 12, 5, 5);
 
-        iconView.setLayoutParams(iconParams);
+        return t;
+    }
 
-        LinearLayout texts = new LinearLayout(this);
+    private TextView infoText(String text) {
 
-        texts.setOrientation(LinearLayout.VERTICAL);
-        texts.setPadding(10, 0, 5, 0);
+        TextView t = new TextView(this);
 
-        TextView titleView = new TextView(this);
+        t.setText(text);
+        t.setTextSize(16);
+        t.setTextColor(RNV_SECONDARY);
+        t.setPadding(15, 15, 15, 15);
+        t.setBackground(background(RNV_CARD, 20));
 
-        titleView.setText(title);
-        titleView.setTextSize(17);
-        titleView.setTextColor(RNV_DARK);
-        titleView.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
+        return t;
+    }
 
-        TextView descView = new TextView(this);
+    // =========================
+    // CARD BUTTON
+    // =========================
 
-        descView.setText(description);
-        descView.setTextSize(13);
-        descView.setTextColor(RNV_SECONDARY);
-        descView.setPadding(0, 4, 0, 0);
+    private Button cardButton(
+            String icon,
+            String titleText,
+            String description) {
 
-        texts.addView(titleView);
-        texts.addView(descView);
+        Button b = new Button(this);
 
-        container.addView(iconView);
-        container.addView(
-                texts,
-                new LinearLayout.LayoutParams(
-                        0,
-                        ViewGroup.LayoutParams.WRAP_CONTENT,
-                        1));
+        b.setAllCaps(false);
+        b.setTextSize(16);
+        b.setTextColor(RNV_DARK);
+        b.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
 
-        LinearLayout.LayoutParams params =
+        b.setGravity(Gravity.CENTER_VERTICAL | Gravity.RIGHT);
+
+        b.setText(
+                icon + "   " +
+                titleText + "\n" +
+                "      " + description
+        );
+
+        b.setBackground(background(RNV_CARD, 22));
+
+        b.setPadding(18, 15, 18, 15);
+
+        LinearLayout.LayoutParams p =
                 new LinearLayout.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT,
                         ViewGroup.LayoutParams.WRAP_CONTENT);
 
-        params.setMargins(0, 7, 0, 7);
+        p.setMargins(0, 7, 0, 7);
 
-        container.setLayoutParams(params);
+        b.setLayoutParams(p);
 
-        return createInvisibleButton(container);
-    }
-
-    private Button createInvisibleButton(View view) {
-
-        Button button = new Button(this);
-
-        button.setText("");
-        button.setBackgroundColor(Color.TRANSPARENT);
-        button.setPadding(0, 0, 0, 0);
-        button.setMinHeight(0);
-        button.setMinimumHeight(0);
-
-        button.setContentDescription("RNV");
-
-        button.setLayoutParams(view.getLayoutParams());
-
-        button.addView(view);
-
-        return button;
+        return b;
     }
 
     // =========================
-    // دکمه استاندارد
+    // NORMAL BUTTON
     // =========================
 
     private Button button(String text) {
@@ -281,15 +227,14 @@ public class MainActivity extends Activity {
         b.setTextColor(RNV_DARK);
         b.setAllCaps(false);
         b.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
-
         b.setBackground(background(RNV_CARD, 18));
 
         b.setPadding(15, 8, 15, 8);
 
         LinearLayout.LayoutParams p =
                 new LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT,
-                        LinearLayout.LayoutParams.WRAP_CONTENT);
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT);
 
         p.setMargins(0, 6, 0, 6);
 
@@ -297,6 +242,10 @@ public class MainActivity extends Activity {
 
         return b;
     }
+
+    // =========================
+    // PRIMARY BUTTON
+    // =========================
 
     private Button primaryButton(String text) {
 
@@ -314,8 +263,8 @@ public class MainActivity extends Activity {
 
         LinearLayout.LayoutParams p =
                 new LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT,
-                        LinearLayout.LayoutParams.WRAP_CONTENT);
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT);
 
         p.setMargins(0, 8, 0, 8);
 
@@ -325,7 +274,7 @@ public class MainActivity extends Activity {
     }
 
     // =========================
-    // ورودی
+    // INPUT
     // =========================
 
     private EditText input(String hint) {
@@ -342,8 +291,8 @@ public class MainActivity extends Activity {
 
         LinearLayout.LayoutParams p =
                 new LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT,
-                        LinearLayout.LayoutParams.WRAP_CONTENT);
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT);
 
         p.setMargins(0, 3, 0, 8);
 
@@ -353,7 +302,7 @@ public class MainActivity extends Activity {
     }
 
     // =========================
-    // صفحه اصلی
+    // MAIN MENU
     // =========================
 
     private void showMainMenu() {
@@ -363,51 +312,54 @@ public class MainActivity extends Activity {
         l.addView(
                 header(
                         "راهاناوند",
-                        "ارتباط انسان‌ها، مهارت‌ها، آموزش و کار"));
+                        "ارتباط انسان‌ها، مهارت‌ها، آموزش و کار"
+                )
+        );
 
         TextView welcome = infoText(
                 "🌱  یک اکوسیستم برای شناخت توانایی‌ها، "
-                        + "یادگیری، همکاری و ساختن آینده.");
+                        + "یادگیری، همکاری و ساختن آینده."
+        );
 
         welcome.setGravity(Gravity.CENTER);
 
         l.addView(welcome);
 
-        Button people =
-                cardButton(
-                        "👥",
-                        "افراد و ارتباط",
-                        "پروفایل، مهارت‌ها، تجربه و همکاری");
+        Button people = cardButton(
+                "👥",
+                "افراد و ارتباط",
+                "پروفایل، مهارت‌ها، تجربه و همکاری"
+        );
 
-        Button education =
-                cardButton(
-                        "🎓",
-                        "آموزش و کشف استعداد",
-                        "یادگیری و شناسایی توانایی‌ها");
+        Button education = cardButton(
+                "🎓",
+                "آموزش و کشف استعداد",
+                "یادگیری و شناسایی توانایی‌ها"
+        );
 
-        Button work =
-                cardButton(
-                        "🛠",
-                        "کار و مهارت",
-                        "مهارت‌ها و مسیرهای کاری");
+        Button work = cardButton(
+                "🛠",
+                "کار و مهارت",
+                "مهارت‌ها و مسیرهای کاری"
+        );
 
-        Button market =
-                cardButton(
-                        "🏪",
-                        "بازار و تولید",
-                        "تولید، فروش و ارتباط با بازار");
+        Button market = cardButton(
+                "🏪",
+                "بازار و تولید",
+                "تولید، فروش و ارتباط با بازار"
+        );
 
-        Button security =
-                cardButton(
-                        "🔐",
-                        "حفاظت و امنیت",
-                        "حفاظت از اطلاعات و حریم خصوصی");
+        Button security = cardButton(
+                "🔐",
+                "حفاظت و امنیت",
+                "حفاظت از اطلاعات و حریم خصوصی"
+        );
 
-        Button management =
-                cardButton(
-                        "⚙️",
-                        "مدیریت سیستم",
-                        "ساختار و مدیریت راهاناوند");
+        Button management = cardButton(
+                "⚙️",
+                "مدیریت سیستم",
+                "ساختار و مدیریت راهاناوند"
+        );
 
         l.addView(people);
         l.addView(education);
@@ -436,10 +388,6 @@ public class MainActivity extends Activity {
         setContentView(page(l));
     }
 
-    // =========================
-    // در حال توسعه
-    // =========================
-
     private void comingSoon(String name) {
 
         Toast.makeText(
@@ -450,7 +398,7 @@ public class MainActivity extends Activity {
     }
 
     // =========================
-    // افراد و ارتباط
+    // PEOPLE
     // =========================
 
     private void showPeople() {
@@ -460,43 +408,45 @@ public class MainActivity extends Activity {
         l.addView(
                 header(
                         "افراد و ارتباط",
-                        "شناخت افراد، توانایی‌ها و همکاری"));
+                        "شناخت افراد، توانایی‌ها و همکاری"
+                )
+        );
 
-        Button profile =
-                cardButton(
-                        "👤",
-                        "پروفایل من",
-                        "اطلاعات شخصی و معرفی کاری");
+        Button profile = cardButton(
+                "👤",
+                "پروفایل من",
+                "اطلاعات شخصی و معرفی کاری"
+        );
 
-        Button skills =
-                cardButton(
-                        "🧰",
-                        "مهارت‌ها و تخصص‌ها",
-                        "ثبت و مدیریت مهارت‌های شما");
+        Button skills = cardButton(
+                "🧰",
+                "مهارت‌ها و تخصص‌ها",
+                "ثبت و مدیریت مهارت‌های شما"
+        );
 
-        Button experience =
-                cardButton(
-                        "📊",
-                        "سابقه و تجربه کاری",
-                        "ثبت تجربه‌ها و پروژه‌های انجام‌شده");
+        Button experience = cardButton(
+                "📊",
+                "سابقه و تجربه کاری",
+                "ثبت تجربه‌ها و پروژه‌های انجام‌شده"
+        );
 
-        Button search =
-                cardButton(
-                        "🔎",
-                        "پیدا کردن افراد",
-                        "جستجوی افراد و متخصصان");
+        Button search = cardButton(
+                "🔎",
+                "پیدا کردن افراد",
+                "جستجوی افراد و متخصصان"
+        );
 
-        Button cooperation =
-                cardButton(
-                        "🤝",
-                        "همکاری و ارتباط",
-                        "درخواست همکاری و ارتباط کاری");
+        Button cooperation = cardButton(
+                "🤝",
+                "همکاری و ارتباط",
+                "درخواست همکاری و ارتباط کاری"
+        );
 
-        Button privacy =
-                cardButton(
-                        "🛡️",
-                        "حریم خصوصی",
-                        "کنترل نمایش اطلاعات شما");
+        Button privacy = cardButton(
+                "🛡️",
+                "حریم خصوصی",
+                "کنترل نمایش اطلاعات شما"
+        );
 
         l.addView(profile);
         l.addView(skills);
@@ -522,7 +472,7 @@ public class MainActivity extends Activity {
     }
 
     // =========================
-    // پروفایل
+    // PROFILE
     // =========================
 
     private void showProfile() {
@@ -532,7 +482,9 @@ public class MainActivity extends Activity {
         l.addView(
                 header(
                         "پروفایل من",
-                        "اطلاعات پایه و معرفی کاری"));
+                        "اطلاعات پایه و معرفی کاری"
+                )
+        );
 
         EditText name = input("نام و نام خانوادگی");
         EditText job = input("شغل یا تخصص اصلی");
@@ -596,7 +548,7 @@ public class MainActivity extends Activity {
     }
 
     // =========================
-    // مهارت‌ها
+    // SKILLS
     // =========================
 
     private void showSkills() {
@@ -606,12 +558,15 @@ public class MainActivity extends Activity {
         l.addView(
                 header(
                         "مهارت‌ها و تخصص‌ها",
-                        "توانایی‌های خود را مشخص کنید"));
+                        "توانایی‌های خود را مشخص کنید"
+                )
+        );
 
         l.addView(
                 infoText(
-                        "مهارت‌هایی را که در آن‌ها توانایی دارید "
-                                + "انتخاب کنید."));
+                        "مهارت‌هایی را که در آن‌ها توانایی دارید انتخاب کنید."
+                )
+        );
 
         String[] skills = {
                 "ساختمان و عمران",
@@ -678,7 +633,7 @@ public class MainActivity extends Activity {
     }
 
     // =========================
-    // سابقه کاری
+    // EXPERIENCE
     // =========================
 
     private void showExperience() {
@@ -688,7 +643,9 @@ public class MainActivity extends Activity {
         l.addView(
                 header(
                         "سابقه و تجربه کاری",
-                        "تجربه‌های عملی خود را ثبت کنید"));
+                        "تجربه‌های عملی خود را ثبت کنید"
+                )
+        );
 
         EditText years = input("چند سال سابقه کار دارید؟");
         EditText projects = input("مهم‌ترین پروژه‌ها یا کارها");
@@ -740,7 +697,7 @@ public class MainActivity extends Activity {
     }
 
     // =========================
-    // جستجوی افراد
+    // SEARCH
     // =========================
 
     private void showSearch() {
@@ -750,7 +707,9 @@ public class MainActivity extends Activity {
         l.addView(
                 header(
                         "پیدا کردن افراد",
-                        "جستجو بر اساس نام، شغل و مهارت"));
+                        "جستجو بر اساس نام، شغل و مهارت"
+                )
+        );
 
         EditText search =
                 input("نام، شغل، تخصص یا مهارت را وارد کنید");
@@ -765,9 +724,8 @@ public class MainActivity extends Activity {
         TextView result = infoText(
                 "نتایج جستجو در حال حاضر محلی است.\n\n"
                         + "پس از اتصال پایگاه داده RNV، "
-                        + "افراد و متخصصان قابل جستجو خواهند بود.");
-
-        result.setTextSize(15);
+                        + "افراد و متخصصان قابل جستجو خواهند بود."
+        );
 
         l.addView(result);
 
@@ -779,7 +737,8 @@ public class MainActivity extends Activity {
             if (text.isEmpty()) {
 
                 result.setText(
-                        "لطفاً عبارت جستجو را وارد کنید.");
+                        "لطفاً عبارت جستجو را وارد کنید."
+                );
 
             } else {
 
@@ -802,7 +761,7 @@ public class MainActivity extends Activity {
     }
 
     // =========================
-    // همکاری
+    // COOPERATION
     // =========================
 
     private void showCooperation() {
@@ -812,7 +771,9 @@ public class MainActivity extends Activity {
         l.addView(
                 header(
                         "همکاری و ارتباط",
-                        "ساختن ارتباط‌های کاری سالم و هدفمند"));
+                        "ساختن ارتباط‌های کاری سالم و هدفمند"
+                )
+        );
 
         TextView info = infoText(
                 "در نسخه‌های بعدی امکانات زیر اضافه می‌شود:\n\n"
@@ -850,7 +811,7 @@ public class MainActivity extends Activity {
     }
 
     // =========================
-    // حریم خصوصی
+    // PRIVACY
     // =========================
 
     private void showPrivacy() {
@@ -860,15 +821,19 @@ public class MainActivity extends Activity {
         l.addView(
                 header(
                         "حریم خصوصی",
-                        "کنترل اطلاعاتی که دیگران می‌بینند"));
+                        "کنترل اطلاعاتی که دیگران می‌بینند"
+                )
+        );
 
         l.addView(
                 infoText(
                         "اطلاعات شخصی باید تحت کنترل صاحب پروفایل باشد."
-                ));
+                )
+        );
 
         l.addView(
-                label("کنترل نمایش اطلاعات پروفایل"));
+                label("کنترل نمایش اطلاعات پروفایل")
+        );
 
         CheckBox showPhone =
                 new CheckBox(this);
@@ -937,7 +902,7 @@ public class MainActivity extends Activity {
     }
 
     // =========================
-    // برگشت گوشی
+    // PHONE BACK
     // =========================
 
     @Override
