@@ -30,14 +30,28 @@ jobs:
 
       - name: Verify APK
         run: |
+          APK="app/build/outputs/apk/debug/app-debug.apk"
+
           echo "=== APK FILE ==="
-          ls -lh app/build/outputs/apk/debug/
+          ls -lh "$APK"
+
           echo "=== FILE TYPE ==="
-          file app/build/outputs/apk/debug/app-debug.apk
-          echo "=== APK TEST ==="
-          unzip -t app/build/outputs/apk/debug/app-debug.apk
+          file "$APK"
+
+          echo "=== ZIP TEST ==="
+          unzip -t "$APK"
+
+          echo "=== FIND APKSIGNER ==="
+          SDK_ROOT="${ANDROID_HOME:-$ANDROID_SDK_ROOT}"
+          APKSIGNER=$(find "$SDK_ROOT/build-tools" -name apksigner -type f | sort -V | tail -1)
+
+          echo "APKSIGNER: $APKSIGNER"
+
+          echo "=== APK SIGNATURE VERIFICATION ==="
+          "$APKSIGNER" verify --verbose --print-certs "$APK"
+
           echo "=== APK CONTENT ==="
-          unzip -l app/build/outputs/apk/debug/app-debug.apk | head -50
+          unzip -l "$APK" | head -50
 
       - name: Upload RNV APK
         uses: actions/upload-artifact@v4
