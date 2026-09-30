@@ -3,1350 +3,1176 @@ package com.rahanavand.rnv;
 import android.app.Activity;
 import android.os.Bundle;
 import android.graphics.Color;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.LinearGradient;
+import android.graphics.Shader;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.view.Gravity;
 import android.view.View;
-import android.view.Window;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
 public class MainActivity extends Activity {
 
-    private final int BG = Color.rgb(3, 17, 31);
-    private final int PANEL = Color.rgb(4, 25, 42);
-    private final int CARD = Color.rgb(7, 34, 55);
-    private final int CARD2 = Color.rgb(9, 43, 66);
+    // =========================
+    // RNV COLOR SYSTEM
+    // =========================
+
+    private final int BG = Color.rgb(3, 13, 25);
+    private final int BG2 = Color.rgb(5, 21, 36);
+
+    private final int CARD = Color.rgb(7, 29, 47);
+    private final int CARD2 = Color.rgb(9, 39, 60);
 
     private final int CYAN = Color.rgb(0, 235, 215);
-    private final int CYAN_DARK = Color.rgb(0, 150, 155);
+    private final int CYAN2 = Color.rgb(0, 180, 190);
 
     private final int WHITE = Color.WHITE;
-    private final int MUTED = Color.rgb(165, 196, 210);
+    private final int TEXT = Color.rgb(225, 239, 245);
+    private final int MUTED = Color.rgb(130, 160, 175);
 
-    private final int GREEN = Color.rgb(35, 220, 145);
-    private final int PURPLE = Color.rgb(145, 95, 245);
-    private final int ORANGE = Color.rgb(245, 170, 45);
-    private final int RED = Color.rgb(235, 75, 105);
-    private final int BLUE = Color.rgb(45, 150, 245);
-
-    private LinearLayout root;
+    private FrameLayout root;
+    private LinearLayout mainLayout;
     private LinearLayout content;
     private LinearLayout drawer;
+
+    private int dp(float value) {
+        return (int) (value * getResources().getDisplayMetrics().density + 0.5f);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Window window = getWindow();
-        window.setStatusBarColor(BG);
-        window.setNavigationBarColor(BG);
+        getWindow().setStatusBarColor(BG);
+        getWindow().setNavigationBarColor(BG);
 
         buildApp();
     }
 
+    // =========================
+    // MAIN APP
+    // =========================
+
     private void buildApp() {
 
-        root = new LinearLayout(this);
-        root.setOrientation(LinearLayout.VERTICAL);
+        root = new FrameLayout(this);
         root.setBackgroundColor(BG);
-        root.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
+
+        mainLayout = new LinearLayout(this);
+        mainLayout.setOrientation(LinearLayout.VERTICAL);
+        mainLayout.setBackgroundColor(BG);
 
         root.addView(
-                buildTopBar(),
-                new LinearLayout.LayoutParams(-1, dp(64))
+                mainLayout,
+                new FrameLayout.LayoutParams(
+                        -1,
+                        -1
+                )
         );
 
-        content = new LinearLayout(this);
-        content.setOrientation(LinearLayout.VERTICAL);
-        content.setBackgroundColor(BG);
-        content.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
+        createTopBar();
 
         ScrollView scroll = new ScrollView(this);
         scroll.setFillViewport(true);
         scroll.setVerticalScrollBarEnabled(false);
+
+        content = new LinearLayout(this);
+        content.setOrientation(LinearLayout.VERTICAL);
+        content.setPadding(
+                dp(16),
+                dp(10),
+                dp(16),
+                dp(18)
+        );
+
         scroll.addView(content);
 
-        root.addView(
+        mainLayout.addView(
                 scroll,
-                new LinearLayout.LayoutParams(-1, 0, 1)
+                new LinearLayout.LayoutParams(
+                        -1,
+                        0,
+                        1
+                )
         );
 
-        root.addView(
-                buildBottomBar(),
-                new LinearLayout.LayoutParams(-1, dp(68))
-        );
+        createHome();
 
-        drawer = buildDrawer();
-        drawer.setVisibility(View.GONE);
+        createBottomBar();
 
-        root.addView(
-                drawer,
-                new LinearLayout.LayoutParams(-1, -1)
-        );
+        createDrawer();
 
         setContentView(root);
-
-        showHome();
     }
 
-    private View buildTopBar() {
+    // =========================
+    // TOP BAR
+    // =========================
+
+    private void createTopBar() {
 
         LinearLayout bar = new LinearLayout(this);
         bar.setOrientation(LinearLayout.HORIZONTAL);
         bar.setGravity(Gravity.CENTER_VERTICAL);
-        bar.setPadding(dp(12), dp(8), dp(12), dp(8));
-        bar.setBackgroundColor(PANEL);
-        bar.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
-
-        TextView profile = text("👤", 24, WHITE);
-        profile.setGravity(Gravity.CENTER);
-        profile.setBackground(
-                round(CARD2, CYAN_DARK, 1, 22)
+        bar.setPadding(
+                dp(16),
+                dp(10),
+                dp(14),
+                dp(8)
         );
+
+        GradientDrawable bg = new GradientDrawable();
+        bg.setColor(BG);
+        bg.setStroke(dp(1), Color.rgb(15, 55, 72));
+        bar.setBackground(bg);
+
+        TextView profile = circleButton("م");
+        profile.setTextColor(CYAN);
+        profile.setOnClickListener(v -> showDrawer());
 
         bar.addView(
                 profile,
-                new LinearLayout.LayoutParams(dp(44), dp(44))
+                new LinearLayout.LayoutParams(
+                        dp(44),
+                        dp(44)
+                )
         );
 
-        LinearLayout nameBox = new LinearLayout(this);
-        nameBox.setOrientation(LinearLayout.VERTICAL);
-        nameBox.setGravity(Gravity.CENTER_VERTICAL);
-        nameBox.setPadding(dp(10), 0, dp(8), 0);
+        LinearLayout titleBox = new LinearLayout(this);
+        titleBox.setOrientation(LinearLayout.VERTICAL);
+        titleBox.setGravity(Gravity.CENTER);
+        titleBox.setPadding(dp(12), 0, dp(12), 0);
 
-        TextView name = text("میلاد تشکر", 15, WHITE);
-        name.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
-
-        TextView role = text("کاربر راهاناوند", 11, MUTED);
-
-        nameBox.addView(name);
-        nameBox.addView(role);
-
-        bar.addView(
-                nameBox,
-                new LinearLayout.LayoutParams(0, -1, 1)
-        );
-
-        LinearLayout logoBox = new LinearLayout(this);
-        logoBox.setOrientation(LinearLayout.VERTICAL);
-        logoBox.setGravity(Gravity.CENTER);
-
-        TextView logo = text("RNV", 25, WHITE);
-        logo.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
-        logo.setGravity(Gravity.CENTER);
-
-        TextView persian = text("راهاناوند", 10, CYAN);
-        persian.setGravity(Gravity.CENTER);
-
-        logoBox.addView(logo);
-        logoBox.addView(persian);
-
-        bar.addView(
-                logoBox,
-                new LinearLayout.LayoutParams(dp(82), -1)
-        );
-
-        TextView menu = text("☰", 27, WHITE);
-        menu.setGravity(Gravity.CENTER);
-
-        menu.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                toggleDrawer();
-            }
-        });
-
-        bar.addView(
-                menu,
-                new LinearLayout.LayoutParams(dp(48), dp(48))
-        );
-
-        return bar;
-    }
-
-    private void showHome() {
-
-        content.removeAllViews();
-
-        TextView hello = text("سلام میلاد 👋", 18, WHITE);
-        hello.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
-        hello.setGravity(Gravity.RIGHT);
-
-        content.addView(
-                hello,
-                lp(16, 14, 16, 6)
+        TextView title = text(
+                "RAHANAVAND",
+                17,
+                WHITE,
+                true
         );
 
         TextView subtitle = text(
-                "اینجا انسان، مهارت، کار، آموزش و بازار در یک شبکه به هم متصل می‌شوند.",
+                "راهاناوند",
                 12,
-                MUTED
+                CYAN,
+                false
         );
 
-        subtitle.setGravity(Gravity.RIGHT);
+        titleBox.addView(title);
+        titleBox.addView(subtitle);
 
-        content.addView(
-                subtitle,
-                lp(16, 0, 16, 12)
-        );
-
-        TextView welcome = text(
-                "به راهاناوند خوش آمدی\nمسیر رشد، همکاری و آینده بهتر را با هم می‌سازیم.",
-                16,
-                WHITE
-        );
-
-        welcome.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
-        welcome.setGravity(Gravity.RIGHT | Gravity.CENTER_VERTICAL);
-        welcome.setPadding(
-                dp(18),
-                dp(14),
-                dp(18),
-                dp(14)
-        );
-
-        LinearLayout.LayoutParams welcomeParams =
-                new LinearLayout.LayoutParams(-1, dp(96));
-
-        welcomeParams.setMargins(
-                dp(12),
-                dp(4),
-                dp(12),
-                dp(10)
-        );
-
-        content.addView(welcome, welcomeParams);
-
-        welcome.setBackground(
-                roundGradient(
-                        CARD2,
-                        Color.rgb(7, 80, 94),
-                        CYAN_DARK
+        bar.addView(
+                titleBox,
+                new LinearLayout.LayoutParams(
+                        0,
+                        -2,
+                        1
                 )
         );
 
-        TextView section = text(
-                "هسته‌های اصلی راهاناوند",
-                16,
-                WHITE
-        );
+        TextView menu = circleButton("☰");
+        menu.setTextColor(WHITE);
+        menu.setTextSize(21);
+        menu.setOnClickListener(v -> showDrawer());
 
-        section.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
-        section.setGravity(Gravity.RIGHT);
-
-        content.addView(
-                section,
-                lp(16, 4, 16, 8)
-        );
-
-        LinearLayout row1 = new LinearLayout(this);
-        row1.setOrientation(LinearLayout.HORIZONTAL);
-        row1.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
-
-        row1.addView(
-                moduleCard(
-                        "👥",
-                        "افراد",
-                        "مهارت‌ها • تجربه • ارتباط",
-                        GREEN
+        bar.addView(
+                menu,
+                new LinearLayout.LayoutParams(
+                        dp(44),
+                        dp(44)
                 )
         );
 
-        row1.addView(
-                moduleCard(
-                        "🎓",
-                        "آموزش و استعداد",
-                        "یادگیری • رشد • مسیر",
-                        PURPLE
-                )
-        );
-
-        content.addView(
-                row1,
-                new LinearLayout.LayoutParams(-1, dp(124))
-        );
-
-        LinearLayout row2 = new LinearLayout(this);
-        row2.setOrientation(LinearLayout.HORIZONTAL);
-        row2.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
-
-        row2.addView(
-                moduleCard(
-                        "🧰",
-                        "کار و پروژه",
-                        "نیرو • پروژه • اجرا",
-                        ORANGE
-                )
-        );
-
-        row2.addView(
-                moduleCard(
-                        "📈",
-                        "تولید و بازار",
-                        "خرید • فروش • خدمات",
-                        GREEN
-                )
-        );
-
-        content.addView(
-                row2,
-                new LinearLayout.LayoutParams(-1, dp(124))
-        );
-
-        LinearLayout row3 = new LinearLayout(this);
-        row3.setOrientation(LinearLayout.HORIZONTAL);
-        row3.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
-
-        row3.addView(
-                moduleCard(
-                        "🛡️",
-                        "امنیت و اعتماد",
-                        "هویت • دسترسی • حریم",
-                        RED
-                )
-        );
-
-        row3.addView(
-                moduleCard(
-                        "⚙️",
-                        "مدیریت RNV",
-                        "ساختار • گزارش • کنترل",
-                        BLUE
-                )
-        );
-
-        content.addView(
-                row3,
-                new LinearLayout.LayoutParams(-1, dp(124))
-        );
-
-        TextView network = text(
-                "🌄  با هم آینده بهتر می‌سازیم\nشبکه‌ای برای فرصت‌های برابر، رشد پایدار و همکاری واقعی.",
-                14,
-                WHITE
-        );
-
-        network.setGravity(
-                Gravity.RIGHT | Gravity.CENTER_VERTICAL
-        );
-
-        network.setPadding(
-                dp(18),
-                dp(10),
-                dp(18),
-                dp(10)
-        );
-
-        LinearLayout.LayoutParams networkParams =
-                new LinearLayout.LayoutParams(-1, dp(92));
-
-        networkParams.setMargins(
-                dp(12),
-                dp(10),
-                dp(12),
-                dp(18)
-        );
-
-        content.addView(network, networkParams);
-
-        network.setBackground(
-                roundGradient(
-                        PANEL,
-                        Color.rgb(5, 60, 72),
-                        CYAN_DARK
+        mainLayout.addView(
+                bar,
+                new LinearLayout.LayoutParams(
+                        -1,
+                        dp(66)
                 )
         );
     }
 
-    private View moduleCard(
+    // =========================
+    // HOME
+    // =========================
+
+    private void createHome() {
+
+        // HERO
+        content.addView(
+                new HeroView(this),
+                new LinearLayout.LayoutParams(
+                        -1,
+                        dp(180)
+                )
+        );
+
+        addSpace(14);
+
+        TextView welcome = text(
+                "به راهاناوند خوش آمدی",
+                22,
+                WHITE,
+                true
+        );
+
+        content.addView(welcome);
+
+        TextView welcomeSub = text(
+                "انسان • مهارت • کار • آموزش • تولید • بازار",
+                13,
+                MUTED,
+                false
+        );
+
+        content.addView(
+                welcomeSub,
+                new LinearLayout.LayoutParams(
+                        -1,
+                        dp(28)
+                )
+        );
+
+        addSpace(10);
+
+        // QUICK STATUS
+        LinearLayout status = new LinearLayout(this);
+        status.setOrientation(LinearLayout.HORIZONTAL);
+        status.setGravity(Gravity.CENTER_VERTICAL);
+
+        status.addView(
+                miniStat("افراد", "۰", "👥"),
+                weightParams()
+        );
+
+        addHorizontalSpace(8);
+
+        status.addView(
+                miniStat("پروژه‌ها", "۰", "◈"),
+                weightParams()
+        );
+
+        addHorizontalSpace(8);
+
+        status.addView(
+                miniStat("مهارت‌ها", "۰", "◆"),
+                weightParams()
+        );
+
+        content.addView(status);
+
+        addSpace(22);
+
+        TextView section = text(
+                "هسته‌های اصلی راهاناوند",
+                18,
+                WHITE,
+                true
+        );
+
+        content.addView(section);
+
+        addSpace(10);
+
+        // GRID ROW 1
+        LinearLayout row1 = horizontalRow();
+
+        row1.addView(
+                moduleCard(
+                        "افراد",
+                        "شبکه انسان‌ها",
+                        "👥",
+                        CYAN
+                ),
+                weightParams()
+        );
+
+        addHorizontalSpace(10);
+
+        row1.addView(
+                moduleCard(
+                        "آموزش و استعداد",
+                        "یادگیری و رشد",
+                        "◆",
+                        Color.rgb(90, 200, 255)
+                ),
+                weightParams()
+        );
+
+        content.addView(row1);
+
+        addSpace(10);
+
+        // GRID ROW 2
+        LinearLayout row2 = horizontalRow();
+
+        row2.addView(
+                moduleCard(
+                        "کار و پروژه",
+                        "فرصت و اجرا",
+                        "◈",
+                        Color.rgb(0, 220, 180)
+                ),
+                weightParams()
+        );
+
+        addHorizontalSpace(10);
+
+        row2.addView(
+                moduleCard(
+                        "تولید و بازار",
+                        "کالا و تجارت",
+                        "▣",
+                        Color.rgb(70, 180, 255)
+                ),
+                weightParams()
+        );
+
+        content.addView(row2);
+
+        addSpace(10);
+
+        // GRID ROW 3
+        LinearLayout row3 = horizontalRow();
+
+        row3.addView(
+                moduleCard(
+                        "امنیت و اعتماد",
+                        "حفاظت و اعتبار",
+                        "⬢",
+                        Color.rgb(0, 200, 210)
+                ),
+                weightParams()
+        );
+
+        addHorizontalSpace(10);
+
+        row3.addView(
+                moduleCard(
+                        "مدیریت RNV",
+                        "سیستم و تصمیم",
+                        "⌘",
+                        Color.rgb(120, 220, 255)
+                ),
+                weightParams()
+        );
+
+        content.addView(row3);
+
+        addSpace(22);
+
+        TextView systemTitle = text(
+                "هسته هوشمند راهاناوند",
+                18,
+                WHITE,
+                true
+        );
+
+        content.addView(systemTitle);
+
+        addSpace(8);
+
+        LinearLayout systemCard = glassCard();
+
+        TextView systemIcon = text(
+                "RNV",
+                22,
+                CYAN,
+                true
+        );
+
+        systemCard.addView(
+                systemIcon,
+                new LinearLayout.LayoutParams(
+                        dp(60),
+                        dp(60)
+                )
+        );
+
+        LinearLayout systemText = new LinearLayout(this);
+        systemText.setOrientation(LinearLayout.VERTICAL);
+        systemText.setGravity(Gravity.CENTER_VERTICAL);
+
+        TextView st1 = text(
+                "اتصال انسان، دانش و فرصت",
+                16,
+                WHITE,
+                true
+        );
+
+        TextView st2 = text(
+                "راهاناوند اطلاعات، مهارت، پروژه، آموزش و بازار را در یک ساختار واحد به هم متصل می‌کند.",
+                12,
+                MUTED,
+                false
+        );
+
+        systemText.addView(st1);
+        systemText.addView(st2);
+
+        systemCard.addView(
+                systemText,
+                new LinearLayout.LayoutParams(
+                        0,
+                        -2,
+                        1
+                )
+        );
+
+        content.addView(systemCard);
+
+        addSpace(30);
+    }
+
+    // =========================
+    // HERO VIEW
+    // =========================
+
+    private class HeroView extends View {
+
+        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+
+        public HeroView(android.content.Context context) {
+            super(context);
+            setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+        }
+
+        @Override
+        protected void onDraw(Canvas canvas) {
+
+            super.onDraw(canvas);
+
+            int w = getWidth();
+            int h = getHeight();
+
+            LinearGradient gradient =
+                    new LinearGradient(
+                            0,
+                            0,
+                            w,
+                            h,
+                            Color.rgb(4, 30, 47),
+                            Color.rgb(2, 12, 26),
+                            Shader.TileMode.CLAMP
+                    );
+
+            paint.setShader(gradient);
+
+            canvas.drawRoundRect(
+                    0,
+                    0,
+                    w,
+                    h,
+                    dp(22),
+                    dp(22),
+                    paint
+            );
+
+            paint.setShader(null);
+
+            // glow
+            paint.setShadowLayer(
+                    dp(28),
+                    0,
+                    0,
+                    CYAN
+            );
+
+            paint.setColor(Color.rgb(0, 80, 85));
+
+            canvas.drawCircle(
+                    w - dp(45),
+                    dp(40),
+                    dp(45),
+                    paint
+            );
+
+            paint.clearShadowLayer();
+
+            // network lines
+            paint.setStrokeWidth(dp(1));
+            paint.setColor(Color.rgb(0, 120, 135));
+
+            for (int i = 0; i < 6; i++) {
+
+                float x1 = w - dp(30) - i * dp(32);
+                float y1 = dp(35) + i * dp(20);
+
+                canvas.drawLine(
+                        x1,
+                        y1,
+                        w - dp(10),
+                        dp(130),
+                        paint
+                );
+            }
+
+            // main RNV
+            paint.setColor(CYAN);
+            paint.setTextSize(dp(38));
+            paint.setTypeface(Typeface.create(
+                    Typeface.DEFAULT,
+                    Typeface.BOLD
+            ));
+
+            canvas.drawText(
+                    "RNV",
+                    dp(22),
+                    dp(60),
+                    paint
+            );
+
+            paint.setColor(WHITE);
+            paint.setTextSize(dp(19));
+
+            canvas.drawText(
+                    "راهاناوند",
+                    dp(24),
+                    dp(91),
+                    paint
+            );
+
+            paint.setColor(MUTED);
+            paint.setTextSize(dp(12));
+
+            canvas.drawText(
+                    "یک شبکه برای ساختن آینده",
+                    dp(24),
+                    dp(118),
+                    paint
+            );
+
+            // glowing node
+            paint.setColor(CYAN);
+
+            for (int i = 0; i < 4; i++) {
+
+                canvas.drawCircle(
+                        dp(26 + i * 22),
+                        h - dp(25),
+                        dp(3),
+                        paint
+                );
+            }
+
+            paint.setColor(Color.rgb(90, 130, 145));
+            paint.setTextSize(dp(10));
+
+            canvas.drawText(
+                    "HUMAN  •  SKILL  •  WORK  •  MARKET",
+                    dp(24),
+                    h - dp(10),
+                    paint
+            );
+        }
+    }
+
+    // =========================
+    // MODULE CARD
+    // =========================
+
+    private LinearLayout moduleCard(
+            String title,
+            String sub,
             String icon,
-            String name,
-            String desc,
             int accent
     ) {
 
         LinearLayout card = new LinearLayout(this);
-
         card.setOrientation(LinearLayout.VERTICAL);
-        card.setGravity(Gravity.CENTER);
+        card.setGravity(Gravity.CENTER_VERTICAL);
         card.setPadding(
-                dp(8),
-                dp(8),
-                dp(8),
-                dp(8)
+                dp(13),
+                dp(13),
+                dp(13),
+                dp(13)
         );
 
-        card.setLayoutDirection(
-                View.LAYOUT_DIRECTION_RTL
-        );
+        GradientDrawable bg = new GradientDrawable();
+        bg.setColor(CARD);
+        bg.setCornerRadius(dp(18));
+        bg.setStroke(dp(1), Color.rgb(17, 65, 82));
 
-        card.setBackground(
-                round(CARD, accent, 1, 18)
-        );
+        card.setBackground(bg);
 
         TextView iconView = text(
                 icon,
-                28,
-                WHITE
+                25,
+                accent,
+                true
         );
-
-        iconView.setGravity(Gravity.CENTER);
 
         card.addView(
                 iconView,
-                new LinearLayout.LayoutParams(-1, dp(42))
+                new LinearLayout.LayoutParams(
+                        -1,
+                        dp(34)
+                )
         );
 
         TextView titleView = text(
-                name,
-                13,
-                WHITE
+                title,
+                14,
+                WHITE,
+                true
         );
 
-        titleView.setTypeface(
-                Typeface.DEFAULT,
-                Typeface.BOLD
+        card.addView(titleView);
+
+        TextView subView = text(
+                sub,
+                10,
+                MUTED,
+                false
         );
 
-        titleView.setGravity(Gravity.CENTER);
+        card.addView(subView);
 
-        card.addView(
-                titleView,
-                new LinearLayout.LayoutParams(-1, dp(24))
+        card.setOnClickListener(v ->
+                openModule(title)
         );
-
-        TextView descView = text(
-                desc,
-                9,
-                MUTED
-        );
-
-        descView.setGravity(Gravity.CENTER);
-
-        card.addView(
-                descView,
-                new LinearLayout.LayoutParams(-1, dp(28))
-        );
-
-        card.setOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        showModule(name);
-                    }
-                }
-        );
-
-        LinearLayout.LayoutParams params =
-                new LinearLayout.LayoutParams(
-                        0,
-                        -1,
-                        1
-                );
-
-        params.setMargins(
-                dp(6),
-                dp(5),
-                dp(6),
-                dp(5)
-        );
-
-        card.setLayoutParams(params);
 
         return card;
     }
 
-    private View buildBottomBar() {
+    // =========================
+    // MINI STAT
+    // =========================
 
-        LinearLayout bar = new LinearLayout(this);
+    private LinearLayout miniStat(
+            String title,
+            String value,
+            String icon
+    ) {
 
-        bar.setOrientation(
-                LinearLayout.HORIZONTAL
+        LinearLayout box = new LinearLayout(this);
+        box.setOrientation(LinearLayout.VERTICAL);
+        box.setGravity(Gravity.CENTER);
+        box.setPadding(
+                dp(6),
+                dp(8),
+                dp(6),
+                dp(8)
         );
 
-        bar.setGravity(Gravity.CENTER);
-        bar.setBackgroundColor(PANEL);
+        GradientDrawable bg = new GradientDrawable();
+        bg.setColor(BG2);
+        bg.setCornerRadius(dp(14));
+        bg.setStroke(dp(1), Color.rgb(15, 55, 72));
 
-        bar.setPadding(
-                dp(4),
-                dp(4),
-                dp(4),
-                dp(4)
+        box.setBackground(bg);
+
+        TextView ic = text(
+                icon,
+                17,
+                CYAN,
+                true
         );
 
-        bar.setLayoutDirection(
-                View.LAYOUT_DIRECTION_RTL
+        TextView val = text(
+                value,
+                15,
+                WHITE,
+                true
         );
 
-        bar.addView(
-                navItem(
-                        "⌂",
-                        "خانه",
-                        true,
-                        new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                showHome();
-                            }
-                        }
-                )
+        TextView name = text(
+                title,
+                10,
+                MUTED,
+                false
         );
 
-        bar.addView(
-                navItem(
-                        "👥",
-                        "افراد",
-                        false,
-                        new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                showModule("افراد");
-                            }
-                        }
-                )
-        );
+        box.addView(ic);
+        box.addView(val);
+        box.addView(name);
 
-        bar.addView(
-                navItem(
-                        "🧰",
-                        "کار",
-                        false,
-                        new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                showModule("کار و پروژه");
-                            }
-                        }
-                )
-        );
-
-        bar.addView(
-                navItem(
-                        "📊",
-                        "بازار",
-                        false,
-                        new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                showModule("تولید و بازار");
-                            }
-                        }
-                )
-        );
-
-        bar.addView(
-                navItem(
-                        "👤",
-                        "حساب من",
-                        false,
-                        new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                showModule("حساب من");
-                            }
-                        }
-                )
-        );
-
-        return bar;
+        return box;
     }
 
-    private View navItem(
+    // =========================
+    // BOTTOM BAR
+    // =========================
+
+    private void createBottomBar() {
+
+        LinearLayout bar = new LinearLayout(this);
+        bar.setOrientation(LinearLayout.HORIZONTAL);
+        bar.setGravity(Gravity.CENTER);
+        bar.setPadding(
+                dp(8),
+                dp(7),
+                dp(8),
+                dp(7)
+        );
+
+        GradientDrawable bg = new GradientDrawable();
+        bg.setColor(Color.rgb(4, 20, 33));
+        bg.setStroke(dp(1), Color.rgb(13, 52, 69));
+
+        bar.setBackground(bg);
+
+        addBottomItem(bar, "⌂", "خانه", true);
+        addBottomItem(bar, "♙", "افراد", false);
+        addBottomItem(bar, "◈", "کار", false);
+        addBottomItem(bar, "▣", "بازار", false);
+        addBottomItem(bar, "●", "حساب من", false);
+
+        mainLayout.addView(
+                bar,
+                new LinearLayout.LayoutParams(
+                        -1,
+                        dp(70)
+                )
+        );
+    }
+
+    private void addBottomItem(
+            LinearLayout bar,
             String icon,
-            String label,
-            boolean selected,
-            View.OnClickListener listener
+            String name,
+            boolean active
     ) {
 
         LinearLayout item = new LinearLayout(this);
-
-        item.setOrientation(
-                LinearLayout.VERTICAL
-        );
-
+        item.setOrientation(LinearLayout.VERTICAL);
         item.setGravity(Gravity.CENTER);
 
-        TextView i = text(
+        TextView ic = text(
                 icon,
-                21,
-                selected ? CYAN : MUTED
+                20,
+                active ? CYAN : MUTED,
+                true
         );
 
-        i.setGravity(Gravity.CENTER);
-
-        TextView t = text(
-                label,
+        TextView title = text(
+                name,
                 10,
-                selected ? WHITE : MUTED
+                active ? CYAN : MUTED,
+                false
         );
 
-        t.setGravity(Gravity.CENTER);
+        item.addView(ic);
+        item.addView(title);
 
-        item.addView(i);
-        item.addView(t);
-
-        item.setOnClickListener(listener);
-
-        LinearLayout.LayoutParams params =
+        bar.addView(
+                item,
                 new LinearLayout.LayoutParams(
                         0,
                         -1,
                         1
-                );
-
-        item.setLayoutParams(params);
-
-        return item;
+                )
+        );
     }
 
-    private LinearLayout buildDrawer() {
+    // =========================
+    // DRAWER
+    // =========================
 
-        LinearLayout panel = new LinearLayout(this);
+    private void createDrawer() {
 
-        panel.setOrientation(
-                LinearLayout.VERTICAL
+        drawer = new LinearLayout(this);
+        drawer.setOrientation(LinearLayout.VERTICAL);
+        drawer.setPadding(
+                dp(20),
+                dp(45),
+                dp(20),
+                dp(20)
         );
 
-        panel.setPadding(
-                dp(12),
-                dp(16),
-                dp(12),
-                dp(16)
+        GradientDrawable bg = new GradientDrawable();
+        bg.setColor(Color.rgb(4, 22, 37));
+        bg.setStroke(dp(1), CYAN2);
+
+        drawer.setBackground(bg);
+
+        FrameLayout.LayoutParams params =
+                new FrameLayout.LayoutParams(
+                        dp(310),
+                        -1,
+                        Gravity.END
+                );
+
+        params.setMargins(
+                dp(25),
+                0,
+                0,
+                0
         );
 
-        panel.setBackgroundColor(BG);
-
-        panel.setLayoutDirection(
-                View.LAYOUT_DIRECTION_RTL
+        TextView close = text(
+                "×",
+                34,
+                WHITE,
+                false
         );
 
-        LinearLayout head = new LinearLayout(this);
+        close.setGravity(Gravity.END);
 
-        head.setGravity(
-                Gravity.CENTER_VERTICAL
+        close.setOnClickListener(
+                v -> hideDrawer()
+        );
+
+        drawer.addView(
+                close,
+                new LinearLayout.LayoutParams(
+                        -1,
+                        dp(50)
+                )
         );
 
         TextView logo = text(
                 "RNV",
-                27,
-                WHITE
+                38,
+                CYAN,
+                true
         );
 
-        logo.setTypeface(
-                Typeface.DEFAULT,
-                Typeface.BOLD
-        );
+        drawer.addView(logo);
 
-        head.addView(
-                logo,
-                new LinearLayout.LayoutParams(
-                        0,
-                        dp(45),
-                        1
-                )
-        );
-
-        TextView close = text(
-                "✕",
-                23,
-                WHITE
-        );
-
-        close.setGravity(Gravity.CENTER);
-
-        close.setOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        drawer.setVisibility(View.GONE);
-                    }
-                }
-        );
-
-        head.addView(
-                close,
-                new LinearLayout.LayoutParams(
-                        dp(48),
-                        dp(45)
-                )
-        );
-
-        panel.addView(head);
-
-        TextView brand = text(
+        TextView name = text(
                 "راهاناوند",
                 20,
-                CYAN
+                WHITE,
+                true
         );
 
-        brand.setTypeface(
-                Typeface.DEFAULT,
-                Typeface.BOLD
+        drawer.addView(name);
+
+        TextView desc = text(
+                "شبکه انسان، مهارت، کار و بازار",
+                12,
+                MUTED,
+                false
         );
 
-        brand.setGravity(Gravity.RIGHT);
+        drawer.addView(desc);
 
-        panel.addView(
-                brand,
-                lp(12, 0, 12, 4)
-        );
+        addSpaceTo(drawer, 25);
 
-        TextView tagline = text(
-                "انسان، مهارت، کار، آموزش و بازار در یک شبکه",
-                11,
-                MUTED
-        );
+        drawerItem(drawer, "⌂", "خانه");
+        drawerItem(drawer, "♙", "افراد");
+        drawerItem(drawer, "◆", "آموزش و استعداد");
+        drawerItem(drawer, "◈", "کار و پروژه");
+        drawerItem(drawer, "▣", "تولید و بازار");
+        drawerItem(drawer, "⬢", "امنیت و اعتماد");
+        drawerItem(drawer, "⌘", "مدیریت RNV");
 
-        tagline.setGravity(Gravity.RIGHT);
+        drawer.setVisibility(View.GONE);
 
-        panel.addView(
-                tagline,
-                lp(12, 0, 12, 18)
-        );
-
-        addDrawerItem(
-                panel,
-                "👤",
-                "پروفایل و اطلاعات",
-                "مهارت‌ها • سابقه • رزومه",
-                "پروفایل"
-        );
-
-        addDrawerItem(
-                panel,
-                "🧰",
-                "مهارت‌ها",
-                "ثبت و مدیریت مهارت‌ها",
-                "مهارت‌ها"
-        );
-
-        addDrawerItem(
-                panel,
-                "🧱",
-                "پروژه‌ها",
-                "پروژه‌های من و پیشنهادها",
-                "پروژه‌ها"
-        );
-
-        addDrawerItem(
-                panel,
-                "🎓",
-                "آموزش‌ها",
-                "دوره‌ها • مسیر یادگیری",
-                "آموزش و استعداد"
-        );
-
-        addDrawerItem(
-                panel,
-                "🏪",
-                "بازار و کسب‌وکار",
-                "خرید • فروش • خدمات",
-                "تولید و بازار"
-        );
-
-        addDrawerItem(
-                panel,
-                "🛡️",
-                "امنیت و حریم خصوصی",
-                "تنظیمات دسترسی • امنیت",
-                "امنیت و اعتماد"
-        );
-
-        addDrawerItem(
-                panel,
-                "💬",
-                "پشتیبانی",
-                "راهنما • سوالات متداول",
-                "پشتیبانی"
-        );
-
-        TextView logout = text(
-                "⏻  خروج",
-                14,
-                RED
-        );
-
-        logout.setGravity(Gravity.CENTER);
-
-        panel.addView(
-                logout,
-                new LinearLayout.LayoutParams(
-                        -1,
-                        dp(58)
-                )
-        );
-
-        return panel;
+        root.addView(drawer, params);
     }
 
-    private void addDrawerItem(
-            LinearLayout panel,
+    private void drawerItem(
+            LinearLayout parent,
             String icon,
-            String name,
-            String desc,
-            final String target
+            String title
     ) {
 
         LinearLayout item = new LinearLayout(this);
-
-        item.setOrientation(
-                LinearLayout.HORIZONTAL
-        );
-
-        item.setGravity(
-                Gravity.CENTER_VERTICAL
-        );
-
+        item.setOrientation(LinearLayout.HORIZONTAL);
+        item.setGravity(Gravity.CENTER_VERTICAL);
         item.setPadding(
-                dp(10),
-                dp(7),
-                dp(10),
-                dp(7)
-        );
-
-        item.setLayoutDirection(
-                View.LAYOUT_DIRECTION_RTL
-        );
-
-        item.setBackground(
-                round(
-                        CARD,
-                        Color.rgb(15, 65, 85),
-                        1,
-                        16
-                )
-        );
-
-        TextView iconView = text(
-                icon,
-                23,
-                WHITE
-        );
-
-        iconView.setGravity(Gravity.CENTER);
-
-        item.addView(
-                iconView,
-                new LinearLayout.LayoutParams(
-                        dp(45),
-                        dp(55)
-                )
-        );
-
-        LinearLayout info = new LinearLayout(this);
-
-        info.setOrientation(
-                LinearLayout.VERTICAL
-        );
-
-        TextView n = text(
-                name,
-                13,
-                WHITE
-        );
-
-        n.setTypeface(
-                Typeface.DEFAULT,
-                Typeface.BOLD
-        );
-
-        TextView d = text(
-                desc,
-                9,
-                MUTED
-        );
-
-        info.addView(n);
-        info.addView(d);
-
-        item.addView(
-                info,
-                new LinearLayout.LayoutParams(
-                        0,
-                        dp(55),
-                        1
-                )
-        );
-
-        TextView arrow = text(
-                "‹",
-                24,
-                CYAN
-        );
-
-        arrow.setGravity(Gravity.CENTER);
-
-        item.addView(
-                arrow,
-                new LinearLayout.LayoutParams(
-                        dp(30),
-                        dp(55)
-                )
-        );
-
-        item.setOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        drawer.setVisibility(View.GONE);
-                        showModule(target);
-                    }
-                }
-        );
-
-        LinearLayout.LayoutParams params =
-                new LinearLayout.LayoutParams(
-                        -1,
-                        dp(69)
-                );
-
-        params.setMargins(
-                0,
-                dp(4),
-                0,
-                dp(4)
-        );
-
-        panel.addView(item, params);
-    }
-
-    private void toggleDrawer() {
-
-        drawer.setVisibility(
-                drawer.getVisibility() == View.VISIBLE
-                        ? View.GONE
-                        : View.VISIBLE
-        );
-    }
-
-    private void showModule(String module) {
-
-        content.removeAllViews();
-
-        TextView back = text(
-                "‹  بازگشت به خانه",
-                13,
-                CYAN
-        );
-
-        back.setGravity(
-                Gravity.RIGHT | Gravity.CENTER_VERTICAL
-        );
-
-        back.setOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        showHome();
-                    }
-                }
-        );
-
-        content.addView(
-                back,
-                new LinearLayout.LayoutParams(
-                        -1,
-                        dp(52)
-                )
-        );
-
-        TextView heading = text(
-                module,
-                22,
-                WHITE
-        );
-
-        heading.setTypeface(
-                Typeface.DEFAULT,
-                Typeface.BOLD
-        );
-
-        heading.setGravity(Gravity.RIGHT);
-
-        content.addView(
-                heading,
-                lp(16, 4, 16, 5)
-        );
-
-        TextView description = text(
-                "این بخش هسته قابل توسعه راهاناوند است. اطلاعات واقعی، ارتباطات و فرآیندها در اینجا قرار می‌گیرند.",
-                12,
-                MUTED
-        );
-
-        description.setGravity(Gravity.RIGHT);
-
-        content.addView(
-                description,
-                lp(16, 0, 16, 16)
-        );
-
-        if (module.equals("افراد")) {
-
-            addInfoCard(
-                    "👥",
-                    "شبکه افراد",
-                    "پروفایل، مهارت، تجربه، سابقه و ارتباطات افراد.",
-                    GREEN
-            );
-
-            addInfoCard(
-                    "⭐",
-                    "ارزیابی عملکرد",
-                    "ثبت تجربه کاری، کیفیت، رضایت و رشد مهارت.",
-                    CYAN
-            );
-
-            addInfoCard(
-                    "🔗",
-                    "ارتباط و همکاری",
-                    "اتصال افراد مناسب به پروژه‌ها و فرصت‌های کاری.",
-                    BLUE
-            );
-
-        } else if (module.equals("آموزش و استعداد")) {
-
-            addInfoCard(
-                    "🎓",
-                    "مسیر یادگیری",
-                    "آموزش مرحله‌ای متناسب با توانایی و هدف فرد.",
-                    PURPLE
-            );
-
-            addInfoCard(
-                    "🧠",
-                    "کشف استعداد",
-                    "شناخت توانایی‌ها و پیشنهاد مسیرهای مناسب.",
-                    CYAN
-            );
-
-            addInfoCard(
-                    "📚",
-                    "دانش عملی",
-                    "ثبت روش‌های واقعی انجام کار برای آموزش نسل بعد.",
-                    GREEN
-            );
-
-        } else if (module.equals("کار و پروژه")) {
-
-            addInfoCard(
-                    "🧰",
-                    "پروژه‌های فعال",
-                    "ثبت پروژه، نیازها، نیروها، زمان و مراحل اجرا.",
-                    ORANGE
-            );
-
-            addInfoCard(
-                    "👷",
-                    "تطبیق نیرو و کار",
-                    "پیشنهاد افراد بر اساس مهارت و تناسب با پروژه.",
-                    BLUE
-            );
-
-            addInfoCard(
-                    "✅",
-                    "کنترل کیفیت",
-                    "ثبت نتیجه، کیفیت تحویل، زمان و رضایت مشتری.",
-                    GREEN
-            );
-
-        } else if (module.equals("تولید و بازار")) {
-
-            addInfoCard(
-                    "🏪",
-                    "محصول و خدمات",
-                    "نمایش و مدیریت محصولات، خدمات و ظرفیت تولید.",
-                    GREEN
-            );
-
-            addInfoCard(
-                    "📦",
-                    "منابع و مصالح",
-                    "اتصال منابع، تأمین‌کنندگان و نیازهای پروژه.",
-                    ORANGE
-            );
-
-            addInfoCard(
-                    "📈",
-                    "بازار",
-                    "اتصال عرضه، تقاضا، فروش و همکاری‌های تجاری.",
-                    BLUE
-            );
-
-        } else if (module.equals("امنیت و اعتماد")) {
-
-            addInfoCard(
-                    "🛡️",
-                    "حریم خصوصی",
-                    "مدیریت سطح دسترسی و حفاظت از اطلاعات حساس.",
-                    RED
-            );
-
-            addInfoCard(
-                    "🔐",
-                    "امنیت حساب",
-                    "کنترل ورود، دسترسی‌ها و رویدادهای امنیتی.",
-                    CYAN
-            );
-
-            addInfoCard(
-                    "✓",
-                    "اعتماد",
-                    "ثبت سوابق و شفافیت فرآیندها برای همکاری مطمئن.",
-                    GREEN
-            );
-
-        } else if (module.equals("مدیریت RNV")) {
-
-            addInfoCard(
-                    "📊",
-                    "گزارش‌ها و تحلیل",
-                    "مشاهده وضعیت افراد، پروژه‌ها، بازار و عملکرد.",
-                    BLUE
-            );
-
-            addInfoCard(
-                    "⚙️",
-                    "تنظیمات سیستم",
-                    "مدیریت ساختار، نقش‌ها، مجوزها و فرآیندها.",
-                    CYAN
-            );
-
-            addInfoCard(
-                    "🧩",
-                    "معماری راهاناوند",
-                    "اتصال هسته‌های مختلف برای ساخت یک اکوسیستم یکپارچه.",
-                    PURPLE
-            );
-
-        } else {
-
-            addInfoCard(
-                    "👤",
-                    module,
-                    "این بخش آماده توسعه و اتصال به داده‌های واقعی RNV است.",
-                    CYAN
-            );
-        }
-    }
-
-    private void addInfoCard(
-            String icon,
-            String heading,
-            String desc,
-            int accent
-    ) {
-
-        LinearLayout card = new LinearLayout(this);
-
-        card.setOrientation(
-                LinearLayout.HORIZONTAL
-        );
-
-        card.setGravity(
-                Gravity.CENTER_VERTICAL
-        );
-
-        card.setPadding(
                 dp(12),
-                dp(8),
+                dp(10),
                 dp(12),
-                dp(8)
-        );
-
-        card.setLayoutDirection(
-                View.LAYOUT_DIRECTION_RTL
-        );
-
-        card.setBackground(
-                round(CARD, accent, 1, 18)
+                dp(10)
         );
 
         TextView ic = text(
                 icon,
-                28,
-                WHITE
+                20,
+                CYAN,
+                true
         );
 
-        ic.setGravity(Gravity.CENTER);
-
-        card.addView(
+        item.addView(
                 ic,
                 new LinearLayout.LayoutParams(
-                        dp(54),
-                        dp(70)
+                        dp(45),
+                        dp(45)
                 )
         );
 
-        LinearLayout info = new LinearLayout(this);
-
-        info.setOrientation(
-                LinearLayout.VERTICAL
+        TextView t = text(
+                title,
+                14,
+                WHITE,
+                false
         );
 
-        TextView h = text(
-                heading,
-                15,
-                WHITE
-        );
-
-        h.setTypeface(
-                Typeface.DEFAULT,
-                Typeface.BOLD
-        );
-
-        h.setGravity(Gravity.RIGHT);
-
-        TextView d = text(
-                desc,
-                10,
-                MUTED
-        );
-
-        d.setGravity(Gravity.RIGHT);
-
-        info.addView(
-                h,
-                new LinearLayout.LayoutParams(
-                        -1,
-                        dp(27)
-                )
-        );
-
-        info.addView(
-                d,
-                new LinearLayout.LayoutParams(
-                        -1,
-                        dp(38)
-                )
-        );
-
-        card.addView(
-                info,
+        item.addView(
+                t,
                 new LinearLayout.LayoutParams(
                         0,
-                        dp(70),
+                        -2,
                         1
                 )
         );
 
-        content.addView(
-                card,
-                lp(12, 6, 12, 6)
-        );
+        GradientDrawable bg = new GradientDrawable();
+        bg.setColor(Color.rgb(7, 31, 48));
+        bg.setCornerRadius(dp(14));
+
+        item.setBackground(bg);
+
+        LinearLayout.LayoutParams p =
+                new LinearLayout.LayoutParams(
+                        -1,
+                        dp(58)
+                );
+
+        p.setMargins(0, 0, 0, dp(8));
+
+        parent.addView(item, p);
     }
+
+    private void showDrawer() {
+
+        if (drawer != null) {
+            drawer.setVisibility(View.VISIBLE);
+            drawer.bringToFront();
+        }
+    }
+
+    private void hideDrawer() {
+
+        if (drawer != null) {
+            drawer.setVisibility(View.GONE);
+        }
+    }
+
+    // =========================
+    // MODULE PAGE
+    // =========================
+
+    private void openModule(String title) {
+
+        content.removeAllViews();
+
+        TextView back = text(
+                "‹  بازگشت",
+                15,
+                CYAN,
+                true
+        );
+
+        back.setPadding(
+                dp(4),
+                dp(10),
+                0,
+                dp(10)
+        );
+
+        back.setOnClickListener(v -> {
+            content.removeAllViews();
+            createHome();
+        });
+
+        content.addView(back);
+
+        addSpace(10);
+
+        TextView header = text(
+                title,
+                28,
+                WHITE,
+                true
+        );
+
+        content.addView(header);
+
+        TextView line = text(
+                "ماژول در حال آماده‌سازی ساختار عملیاتی RNV",
+                13,
+                MUTED,
+                false
+        );
+
+        content.addView(line);
+
+        addSpace(25);
+
+        LinearLayout card = glassCard();
+
+        TextView rnv = text(
+                "RNV",
+                34,
+                CYAN,
+                true
+        );
+
+        card.addView(
+                rnv,
+                new LinearLayout.LayoutParams(
+                        -1,
+                        dp(65)
+                )
+        );
+
+        TextView info = text(
+                "این بخش به هسته اصلی راهاناوند متصل است و در نسخه‌های بعدی اطلاعات، افراد، پروژه‌ها، آموزش، بازار و فرآیندهای مرتبط را مدیریت خواهد کرد.",
+                14,
+                TEXT,
+                false
+        );
+
+        card.addView(info);
+
+        content.addView(card);
+    }
+
+    // =========================
+    // HELPERS
+    // =========================
 
     private TextView text(
             String value,
             float size,
-            int color
-    ) {
-
-        TextView view = new TextView(this);
-
-        view.setText(value);
-        view.setTextSize(size);
-        view.setTextColor(color);
-
-        view.setGravity(
-                Gravity.CENTER_VERTICAL
-        );
-
-        view.setLayoutDirection(
-                View.LAYOUT_DIRECTION_RTL
-        );
-
-        view.setTextDirection(
-                View.TEXT_DIRECTION_RTL
-        );
-
-        return view;
-    }
-
-    private GradientDrawable round(
             int color,
-            int strokeColor,
-            int strokeWidth,
-            int radiusDp
+            boolean bold
     ) {
 
-        GradientDrawable drawable =
-                new GradientDrawable();
+        TextView t = new TextView(this);
 
-        drawable.setColor(color);
+        t.setText(value);
+        t.setTextColor(color);
+        t.setTextSize(size);
+        t.setGravity(Gravity.CENTER_VERTICAL);
 
-        drawable.setCornerRadius(
-                dp(radiusDp)
-        );
-
-        if (strokeWidth > 0) {
-            drawable.setStroke(
-                    dp(strokeWidth),
-                    strokeColor
+        if (bold) {
+            t.setTypeface(
+                    Typeface.create(
+                            Typeface.DEFAULT,
+                            Typeface.BOLD
+                    )
             );
         }
 
-        return drawable;
+        return t;
     }
 
-    private GradientDrawable roundGradient(
-            int start,
-            int end,
-            int stroke
-    ) {
+    private TextView circleButton(String value) {
 
-        GradientDrawable drawable =
-                new GradientDrawable(
-                        GradientDrawable.Orientation.TL_BR,
-                        new int[]{start, end}
-                );
-
-        drawable.setCornerRadius(
-                dp(20)
+        TextView t = text(
+                value,
+                17,
+                WHITE,
+                true
         );
 
-        drawable.setStroke(
+        t.setGravity(Gravity.CENTER);
+
+        GradientDrawable bg = new GradientDrawable();
+        bg.setColor(CARD);
+        bg.setShape(GradientDrawable.OVAL);
+        bg.setStroke(
                 dp(1),
-                stroke
+                Color.rgb(20, 75, 90)
         );
 
-        return drawable;
+        t.setBackground(bg);
+
+        return t;
     }
 
-    private LinearLayout.LayoutParams lp(
-            int left,
-            int top,
-            int right,
-            int bottom
+    private LinearLayout glassCard() {
+
+        LinearLayout card = new LinearLayout(this);
+
+        card.setOrientation(LinearLayout.HORIZONTAL);
+        card.setGravity(Gravity.CENTER_VERTICAL);
+
+        card.setPadding(
+                dp(15),
+                dp(15),
+                dp(15),
+                dp(15)
+        );
+
+        GradientDrawable bg = new GradientDrawable();
+
+        bg.setColor(CARD2);
+        bg.setCornerRadius(dp(19));
+        bg.setStroke(
+                dp(1),
+                Color.rgb(18, 78, 95)
+        );
+
+        card.setBackground(bg);
+
+        return card;
+    }
+
+    private LinearLayout horizontalRow() {
+
+        LinearLayout row = new LinearLayout(this);
+
+        row.setOrientation(LinearLayout.HORIZONTAL);
+
+        row.setGravity(Gravity.CENTER);
+
+        return row;
+    }
+
+    private LinearLayout.LayoutParams weightParams() {
+
+        return new LinearLayout.LayoutParams(
+                0,
+                dp(115),
+                1
+        );
+    }
+
+    private void addSpace(int size) {
+
+        SpaceView space = new SpaceView(this);
+
+        content.addView(
+                space,
+                new LinearLayout.LayoutParams(
+                        1,
+                        dp(size)
+                )
+        );
+    }
+
+    private void addHorizontalSpace(int size) {
+
+        SpaceView space = new SpaceView(this);
+
+        space.setLayoutParams(
+                new LinearLayout.LayoutParams(
+                        dp(size),
+                        1
+                )
+        );
+    }
+
+    private void addSpaceTo(
+            LinearLayout parent,
+            int size
     ) {
 
-        LinearLayout.LayoutParams params =
+        SpaceView space = new SpaceView(this);
+
+        parent.addView(
+                space,
                 new LinearLayout.LayoutParams(
-                        -1,
-                        -2
-                );
-
-        params.setMargins(
-                dp(left),
-                dp(top),
-                dp(right),
-                dp(bottom)
+                        1,
+                        dp(size)
+                )
         );
-
-        return params;
     }
 
-    private int dp(int value) {
+    private class SpaceView extends View {
 
-        return (int)
-                (
-                        value *
-                        getResources()
-                                .getDisplayMetrics()
-                                .density
-                        + 0.5f
-                );
+        public SpaceView(android.content.Context context) {
+            super(context);
+        }
     }
 }
