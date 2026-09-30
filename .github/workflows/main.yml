@@ -24,15 +24,19 @@ jobs:
           java-version: '17'
           cache: gradle
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Install Android SDK
+      - name: Check Android SDK
         run: |
-          yes | sdkmanager --licenses || true
-          sdkmanager "platform-tools"
-          sdkmanager "platforms;android-35"
-          sdkmanager "build-tools;35.0.0"
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
+
+          echo "=== Android Platforms ==="
+          ls -la "$ANDROID_HOME/platforms" || true
+
+          echo "=== Build Tools ==="
+          ls -la "$ANDROID_HOME/build-tools" || true
+
+          echo "=== SDK Packages ==="
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --list | head -80 || true
 
       - name: Make Gradle executable
         run: chmod +x gradlew
