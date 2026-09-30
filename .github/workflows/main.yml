@@ -6,6 +6,9 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -19,39 +22,59 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
+          cache: gradle
 
-      - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v6
-        with:
-          gradle-version: '8.10'
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
 
-      - name: Build Debug APK
-        run: gradle clean assembleDebug
+      - name: Install Android SDK 35
+        run: |
+          sdkmanager "platforms;android-35" \
+                     "build-tools;35.0.0"
 
-      - name: Verify APK
+      - name: Make Gradle executable
+        run: chmod +x gradlew
+
+      - name: Build RNV Debug APK
+        run: ./gradlew clean assembleDebug --stacktrace
+
+      - name: Verify APK exists
         run: |
           APK="app/build/outputs/apk/debug/app-debug.apk"
 
-          echo "=== APK FILE ==="
-          ls -lh "$APK"
+          if [ ! -f "$APK" ]; then
+            echo "ERROR: APK was not created."
+            exit 1
+          fi
 
-          echo "=== FILE TYPE ==="
+          echo "=== APK INFORMATION ==="
+          ls -lh "$APK"
           file "$APK"
 
-          echo "=== ZIP TEST ==="
+      - name: Verify APK ZIP
+        run: |
+          APK="app/build/outputs/apk/debug/app-debug.apk"
           unzip -t "$APK"
 
-          echo "=== FIND APKSIGNER ==="
-          SDK_ROOT="${ANDROID_HOME:-$ANDROID_SDK_ROOT}"
-          APKSIGNER=$(find "$SDK_ROOT/build-tools" -name apksigner -type f | sort -V | tail -1)
+      - name: Verify APK Signature
+        run: |
+          APK="app/build/outputs/apk/debug/app-debug.apk"
 
-          echo "APKSIGNER: $APKSIGNER"
+          APKSIGNER=$(find "$ANDROID_HOME/build-tools" \
+            -name apksigner \
+            -type f | sort -V | tail -1)
 
-          echo "=== APK SIGNATURE VERIFICATION ==="
-          "$APKSIGNER" verify --verbose --print-certs "$APK"
+          echo "Using: $APKSIGNER"
 
-          echo "=== APK CONTENT ==="
-          unzip -l "$APK" | head -50
+          "$APKSIGNER" verify \
+            --verbose \
+            --print-certs \
+            "$APK"
+
+      - name: Show APK Contents
+        run: |
+          APK="app/build/outputs/apk/debug/app-debug.apk"
+          unzip -l "$APK" | head -100
 
       - name: Upload RNV APK
         uses: actions/upload-artifact@v4
