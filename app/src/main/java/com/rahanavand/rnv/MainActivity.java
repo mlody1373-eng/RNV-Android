@@ -2,7 +2,11 @@ package com.rahanavand.rnv;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.LinearGradient;
+import android.graphics.Paint;
+import android.graphics.Shader;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.view.Gravity;
@@ -952,10 +956,12 @@ public class MainActivity extends Activity {
 
     private class Hero extends View {
 
-        private final Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
+        private final Paint p =
+                new Paint(Paint.ANTI_ALIAS_FLAG);
 
         Hero() {
             super(MainActivity.this);
+            setLayerType(View.LAYER_TYPE_SOFTWARE, null);
         }
 
         @Override
@@ -1016,7 +1022,14 @@ public class MainActivity extends Activity {
                     p
             );
 
-            p.setColor(Color.argb(35, 0, 235, 215));
+            p.setColor(
+                    Color.argb(
+                            35,
+                            0,
+                            235,
+                            215
+                    )
+            );
 
             canvas.drawCircle(
                     w - dp(48),
